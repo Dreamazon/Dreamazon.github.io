@@ -118,3 +118,98 @@ function redo() {
 // Event listeners for Undo and Redo buttons
 document.getElementById('undo').addEventListener('click', undo);
 document.getElementById('redo').addEventListener('click', redo);
+
+// Function to create a rectangle
+function createRectangle() {
+    return new fabric.Rect({
+        left: 0,
+        top: 0,
+        width: 0, // Initial width
+        height: 0, // Initial height
+        fill: 'transparent', // Transparent fill for now
+        strokeWidth: drawingOptions.lineWidth,
+        stroke: drawingOptions.color,
+    });
+}
+
+// Function to create a circle
+function createCircle() {
+    return new fabric.Circle({
+        left: 0,
+        top: 0,
+        radius: 0, // Initial radius
+        fill: 'transparent', // Transparent fill for now
+        strokeWidth: drawingOptions.lineWidth,
+        stroke: drawingOptions.color,
+    });
+}
+
+// Function to create a triangle
+function createTriangle() {
+    return new fabric.Triangle({
+        left: 0,
+        top: 0,
+        width: 0, // Initial width
+        height: 0, // Initial height
+        fill: 'transparent', // Transparent fill for now
+        strokeWidth: drawingOptions.lineWidth,
+        stroke: drawingOptions.color,
+    });
+}
+
+// Set up variables for shape drawing
+let isDrawingShape = false;
+let shapeStartX, shapeStartY;
+let currentShape;
+
+// Add event listeners for shape drawing buttons
+document.getElementById('drawRectangle').addEventListener('click', function () {
+    canvas.isDrawingMode = false;
+    canvas.selection = false;
+    isDrawingShape = true;
+    currentShape = createRectangle();
+});
+
+document.getElementById('drawCircle').addEventListener('click', function () {
+    canvas.isDrawingMode = false;
+    canvas.selection = false;
+    isDrawingShape = true;
+    currentShape = createCircle();
+});
+
+document.getElementById('drawTriangle').addEventListener('click', function () {
+    canvas.isDrawingMode = false;
+    canvas.selection = false;
+    isDrawingShape = true;
+    currentShape = createTriangle();
+});
+
+// Event listener for mouse down to start drawing shape
+canvas.on('mouse:down', function (event) {
+    if (isDrawingShape) {
+        const pointer = canvas.getPointer(event.e);
+        shapeStartX = pointer.x;
+        shapeStartY = pointer.y;
+        currentShape.set({ left: shapeStartX, top: shapeStartY }).setCoords();
+        canvas.add(currentShape);
+        canvas.renderAll();
+    }
+});
+
+// Event listener for mouse move to resize the shape
+canvas.on('mouse:move', function (event) {
+    if (isDrawingShape) {
+        const pointer = canvas.getPointer(event.e);
+        const width = pointer.x - shapeStartX;
+        const height = pointer.y - shapeStartY;
+        currentShape.set({ width: width, height: height }).setCoords();
+        canvas.renderAll();
+    }
+});
+
+// Event listener for mouse up to finish drawing shape
+canvas.on('mouse:up', function () {
+    if (isDrawingShape) {
+        isDrawingShape = false;
+    }
+});
