@@ -132,18 +132,6 @@ function createRectangle() {
     });
 }
 
-// Function to create a circle
-function createCircle() {
-    return new fabric.Circle({
-        left: 0,
-        top: 0,
-        radius: 0, // Initial radius
-        fill: 'transparent', // Transparent fill for now
-        strokeWidth: drawingOptions.lineWidth,
-        stroke: drawingOptions.color,
-    });
-}
-
 // Function to create a triangle
 function createTriangle() {
     return new fabric.Triangle({
@@ -168,13 +156,6 @@ document.getElementById('drawRectangle').addEventListener('click', function () {
     canvas.selection = false;
     isDrawingShape = true;
     currentShape = createRectangle();
-});
-
-document.getElementById('drawCircle').addEventListener('click', function () {
-    canvas.isDrawingMode = false;
-    canvas.selection = false;
-    isDrawingShape = true;
-    currentShape = createCircle();
 });
 
 document.getElementById('drawTriangle').addEventListener('click', function () {
@@ -212,4 +193,52 @@ canvas.on('mouse:up', function () {
     if (isDrawingShape) {
         isDrawingShape = false;
     }
+});
+
+// Function to create a circle
+function createCircle(left, top, radius) {
+    return new fabric.Circle({
+        left: left,
+        top: top,
+        radius: radius,
+        fill: 'transparent', // Transparent fill for now
+        strokeWidth: drawingOptions.lineWidth,
+        stroke: drawingOptions.color,
+    });
+}
+
+// Function to start drawing a circle
+function startDrawingCircle(event) {
+    const x = event.pointer.x;
+    const y = event.pointer.y;
+
+    const circle = createCircle(x, y, 1); // Start with a small radius
+    canvas.add(circle);
+
+    // Event listener for mouse move to update circle size
+    canvas.on('mouse:move', function (event) {
+        const newX = event.pointer.x;
+        const newY = event.pointer.y;
+        const dx = newX - x;
+        const dy = newY - y;
+        const radius = Math.sqrt(dx * dx + dy * dy);
+
+        circle.set({ radius: radius });
+        canvas.renderAll();
+    });
+
+    // Event listener for mouse up to stop drawing
+    canvas.on('mouse:up', function () {
+        canvas.off('mouse:move');
+        canvas.off('mouse:up');
+    });
+}
+
+// Event listener for the "Draw Circle" button
+document.getElementById('drawCircle').addEventListener('click', function () {
+    canvas.isDrawingMode = false; // Disable free drawing mode if it's enabled
+    canvas.selection = false; // Disable object selection
+
+    // Add a temporary listener to start drawing the circle
+    canvas.on('mouse:down', startDrawingCircle);
 });
